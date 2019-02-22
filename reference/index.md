@@ -9,4 +9,5 @@ breadcrumb: reference
 ## ディレクトリ
 
 |:--|:--|
+|[graph ディレクトリ](./graph)|グラフアルゴリズム|
 |[math ディレクトリ](./math)|数学系|
