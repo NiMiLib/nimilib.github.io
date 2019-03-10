@@ -17,7 +17,7 @@ namespace nimi{
 
 |:--|:--|
 |`const nimi::graph<T>& g`|最短経路を求めるグラフ|
-|`std::size_t`|最短経路の始点|
+|`std::size_t s`|最短経路の始点|
 
 
 ### 戻り値

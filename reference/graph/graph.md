@@ -7,7 +7,7 @@ header: lib/graph/graph.hpp
 ---
 
 ```cpp
-namespace nimi{
+namespace nimi {
   struct base_edge {
     int from;
     int to;
@@ -15,18 +15,39 @@ namespace nimi{
   };
 
   template<class T>
-  struct edge : public base_edge {
-    T val;
-    edge(int from, int to, T v);
-  };
+    struct edge : public base_edge {
+      T val;
+      edge(int from, int to, T v);
+    };
 
   template<>
-  struct edge<void> : public base_edge {
-    edge(int from, int to);
+    struct edge<void> : public base_edge {
+      edge(int from, int to);
+    };
+  template<class C>
+  struct maxflow_edge : public base_edge {
+    C cap;
+    std::size_t rev;
+    maxflow_edge(int from, int to, C cap, std::size_t rev);
   };
 
   template<class T>
-  using graph = std::vector<std::vector<edge<T>>>;
+  struct directed_graph : public std::vector<std::vector<edge<T>>> {
+    directed_graph(std::size_t n);
+    void add_edge(const edge<T>& e);
+  };
+
+  template<class T>
+  struct undirected_graph : public std::vector<std::vector<edge<T>>> {
+    undirected_graph(std::size_t n);
+    void add_edge(const edge<T>& e);
+  };
+
+  template<class C>
+  struct maxflow_graph : public std::vector<std::vector<maxflow_edge<C>>> {
+    maxflow_graph(std::size_t n);
+    void add_edge(int from, int to, C cap, std::size_t rev_cap = 0);
+  };
 }
 ```
 
@@ -39,9 +60,11 @@ namespace nimi{
 - `T`が`void`以外 -> `T`型の重み`val`を持つ辺
 - `T`が`void` -> 重みを持たない辺
 
-を示すクラスでである.
+を示すクラスである.
 
-`graph`は`std::vector<std::vector<edge<T>>>`のエイリアスで, グラフの隣接リストである. 
+- `directed_graph`...有向グラフ
+- `undirected_graph`は無向グラフ
+- `maxflow_graph`は最大フローを求める際に使う残余グラフ
 
 ## 例
 
@@ -73,26 +96,23 @@ namespace nimi{
 
 int main() {
   { // 1.
-    nimi::graph<void> g(4);
+    nimi::directed_graph<void> g(4);
     using E = nimi::edge<void>;
-    g[0].push_back(E(0, 1));
-    g[1].push_back(E(1, 2));
-    g[1].push_back(E(1, 3));
+    g.add_edge(E(0, 1));
+    g.add_edge(E(1, 2));
+    g.add_edge(E(1, 3));
   }
   { // 2.
-    nimi::graph<int> g(3);
+    nimi::directed_graph<int> g(3);
     using E = nimi::edge<int>;
-    g[0].push_back(E(0, 1, -1));
-    g[2].push_back(E(2, 1, 5));
+    g.add_edge(E(0, 1, -1));
+    g.add_edge(E(2, 1, 5));
   }
   { // 3.
-    nimi::graph<void> g(3);
+    nimi::undireced_graph<void> g(3);
     using E = nimi::edge<void>;
-    g[0].push_back(E(0, 1));
-    g[1].push_back(E(1, 0));
-
-    g[1].push_back(E(1, 2));
-    g[2].push_back(E(2, 1));
+    g.add_edge(E(0, 1));
+    g.add_edge(E(1, 2));
   }
 }
 ```
